@@ -1,0 +1,14 @@
+{
+ "name":"ميزانية أسرتي",
+ "short_name":"ميزانيتي",
+ "description":"تطبيق شخصي مشترك لإدارة دخل ومصروفات الأسرة وقائمة المشتريات",
+ "start_url":"./",
+ "scope":"./",
+ "display":"standalone",
+ "orientation":"portrait",
+ "background_color":"#f5f8f7",
+ "theme_color":"#eef8f3",
+ "lang":"ar",
+ "dir":"rtl",
+ "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}

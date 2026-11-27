@@ -19,6 +19,31 @@
 #recentList .amount,#allList .amount{font-size:12px}
 #recentList .tx-actions,#allList .tx-actions{display:flex;gap:4px}
 #recentList .tx-actions .btn,#allList .tx-actions .btn{padding:4px 7px;font-size:10px;border-radius:8px}
+
+/* تحسين شكل بطاقات الحركات وإظهار بيانات التاريخ كلٌّ في سطر */
+#recentList,#allList{display:grid;gap:9px}
+#recentList .tx-card,#allList .tx-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;margin:0;border:1px solid #dfece5;border-radius:16px;background:linear-gradient(145deg,#ffffff 0%,#f7fcf9 100%);box-shadow:0 4px 13px #234d3b10;position:relative;overflow:hidden}
+#recentList .tx-card:before,#allList .tx-card:before{content:"";position:absolute;right:0;top:10px;bottom:10px;width:4px;border-radius:4px;background:linear-gradient(180deg,#61c994,#8db9e8)}
+#recentList .visual-icon,#allList .visual-icon{width:34px;height:34px;min-width:34px;border-radius:11px;font-size:17px}
+#recentList .row-main,#allList .row-main{gap:9px}
+#recentList .itemtitle,#allList .itemtitle{font-size:13px;line-height:1.45;margin-bottom:5px}
+#recentList .tx-meta,#allList .tx-meta{display:flex;flex-direction:column;align-items:flex-start;gap:3px;color:#78877f;font-size:10px;line-height:1.5}
+#recentList .category-chip,#allList .category-chip{font-size:10px;padding:3px 7px;margin-bottom:2px}
+#recentList .tx-meta-line,#allList .tx-meta-line{display:block;white-space:normal}
+#recentList .tx-person,#allList .tx-person{color:#5c8170;margin-top:2px}
+#recentList .tx-side,#allList .tx-side{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+#recentList .amount,#allList .amount{font-size:12px;padding:6px 8px;border-radius:10px;background:#f1f8f4}
+#recentList .amount.minus,#allList .amount.minus{background:#fff1ef}
+#recentList .tx-actions,#allList .tx-actions{display:flex;gap:4px}
+#recentList .tx-actions .btn,#allList .tx-actions .btn{padding:5px 7px;font-size:10px;border-radius:8px}
+/* إطارات أوضح لأيقونات ملخص الإيرادات والمصروفات والرصيد */
+.stat{border:1px solid #ffffff;position:relative;overflow:hidden;box-shadow:0 7px 20px #234d3b12}
+.stat-icon{width:43px;height:43px;border:1px solid #ffffffb8;border-radius:15px;display:grid;place-items:center;font-size:23px;box-shadow:0 3px 10px #234d3b12,inset 0 1px 0 #ffffff;background:linear-gradient(145deg,#ffffffd9,#ffffff78)}
+.stat.income .stat-icon{background:linear-gradient(145deg,#ffffff,#c9f2dc);border-color:#a9e3c3}
+.stat.expense .stat-icon{background:linear-gradient(145deg,#ffffff,#ffd9d3);border-color:#ffc4ba}
+.stat.balance .stat-icon{background:linear-gradient(145deg,#ffffff,#d4e6ff);border-color:#b9d4f7}
+@media(max-width:420px){#recentList .tx-card,#allList .tx-card{padding:9px 9px;gap:6px}#recentList .tx-side,#allList .tx-side{gap:5px}#recentList .amount,#allList .amount{font-size:11px;padding:5px 6px}}
+
 .foot{text-align:center;color:#9aa69f;font-size:11px;margin-top:24px}@media(max-width:640px){.wrap{padding:13px 12px 90px}.brand h1{font-size:17px}.userbox span{display:none}.grid{gap:8px}.stat{padding:13px 10px}.stat .label{font-size:11px}.stat strong{font-size:17px}.formgrid{grid-template-columns:1fr}.section{padding:14px}.chartbox{height:230px}}
 </style>
 </head>
@@ -91,7 +116,7 @@ $('saveTx').onclick=async()=>{const amount=Number($('txAmount').value),date=$('t
 function resetForm(){editingId=null;$('txAmount').value='';$('txDescription').value='';$('saveTx').textContent='حفظ الحركة';$('cancelEdit').classList.add('hidden')}$('cancelEdit').onclick=resetForm;
 function editTx(t){editingId=t.id;$('txType').value=t.type;fillCategorySelect();$('txCategory').value=t.category;$('txAmount').value=t.amount;$('txDate').value=t.date;$('txDescription').value=t.description||'';$('txPerson').value=personLabel(t.person)||'محمد';$('saveTx').textContent='حفظ التعديل';$('cancelEdit').classList.remove('hidden');setPage('home');window.scrollTo({top:0,behavior:'smooth'})}
 async function deleteTx(id){if(!confirm('هل تريد حذف هذه الحركة؟'))return;try{await coll('transactions').doc(id).delete();toast('تم حذف الحركة')}catch(e){toast('تعذر الحذف')}}
-function itemHtml(t){const d=new Date((t.createdAt||t.updatedAt||Date.now()));const weekday=new Date((t.date||'')+'T12:00:00').toLocaleDateString('ar-EG',{weekday:'long'});const time=d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});return `<div class="rowitem tx-card"><div class="row-main"><span class="visual-icon ${t.type==='income'?'income':'expense'}">${categoryIcon(t.category)}</span><div class="row-copy"><div class="itemtitle">${esc(t.description||t.category)}</div><div class="sub"><span class="category-chip">${categoryIcon(t.category)} ${esc(t.category)}</span> · ${esc(t.date)} · ${esc(weekday)} · ${esc(time)} · ${esc(personLabel(t.person))}</div></div></div><div class="tx-side"><span class="amount ${t.type==='income'?'plus':'minus'}">${t.type==='income'?'+':'−'} ${money(t.amount)}</span><div class="tx-actions"><button class="btn secondary small" onclick="editTxById('${t.id}')">تعديل</button><button class="btn danger small" onclick="deleteTx('${t.id}')">حذف</button></div></div></div>`}
+function itemHtml(t){const d=new Date((t.createdAt||t.updatedAt||Date.now()));const weekday=new Date((t.date||'')+'T12:00:00').toLocaleDateString('ar-EG',{weekday:'long'});const time=d.toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});return `<div class="rowitem tx-card"><div class="row-main"><span class="visual-icon ${t.type==='income'?'income':'expense'}">${categoryIcon(t.category)}</span><div class="row-copy"><div class="itemtitle">${esc(t.description||t.category)}</div><div class="tx-meta"><span class="category-chip">${categoryIcon(t.category)} ${esc(t.category)}</span><span class="tx-meta-line">📅 التاريخ: ${esc(t.date||'غير محدد')}</span><span class="tx-meta-line">🗓️ اليوم: ${esc(weekday)}</span><span class="tx-meta-line">🕒 الوقت: ${esc(time)}</span><span class="tx-person">👤 ${esc(personLabel(t.person))}</span></div></div></div><div class="tx-side"><span class="amount ${t.type==='income'?'plus':'minus'}">${t.type==='income'?'+':'−'} ${money(t.amount)}</span><div class="tx-actions"><button class="btn secondary small" onclick="editTxById('${t.id}')">تعديل</button><button class="btn danger small" onclick="deleteTx('${t.id}')">حذف</button></div></div></div>`}
 window.editTxById=id=>{const t=txs.find(x=>x.id===id);if(t)editTx(t)};window.deleteTx=deleteTx;
 function renderAll(){const inc=txs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0),out=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);$('totalIncome').textContent=money(inc);$('totalExpense').textContent=money(out);$('balance').textContent=money(inc-out);$('recentList').className=txs.length?'':'empty';$('recentList').innerHTML=txs.slice(0,6).map(itemHtml).join('')||'لا توجد حركات مسجلة بعد.';renderTxList();}
 function renderTxList(){const q=$('txSearch').value.toLowerCase(),type=$('filterType').value,month=$('filterMonth').value;const list=txs.filter(t=>(type==='all'||t.type===type)&&(!month||t.date?.startsWith(month))&&(`${t.description||''} ${t.category||''}`).toLowerCase().includes(q));$('allList').className=list.length?'':'empty';$('allList').innerHTML=list.map(itemHtml).join('')||'لا توجد حركات مطابقة.'}
